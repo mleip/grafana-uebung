@@ -39,5 +39,9 @@ scrape_configs:
     static_configs:
       - targets: ['mysql-exporter:9104']
 
+  - job_name: 'nodejs'
+    static_configs:
+      - targets: ['nodejs:5000']
+
     # Override the global default and scrape targets from this job every 5 seconds.
     # scrape_interval: 5s
