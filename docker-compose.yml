@@ -3,6 +3,7 @@ version: '3.2'
 volumes:
   prometheus_data: {}
   grafana_data: {}
+  mysql_exporter_data: {}
 
 networks:
   monitor:
@@ -50,3 +51,34 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+    - 8080:8080
+    networks:
+      - monitor
+
+  mysql:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    networks:
+      - monitor
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=demodb
+
+  mysql-exporter:
+    image: prom/mysqld-exporter
+    ports:
+      - 9104:9104
+    networks:
+      - monitor
+    environment:
+      - DATA_SOURCE_NAME=root:root@(mysql:3306)/demodb
+    depends_on:
+      - mysql
+    volumes:
+      - mysql_exporter_data:/etc/node-exporter/
