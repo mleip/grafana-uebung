@@ -40,4 +40,5 @@
 * Ein Fork dieses Repository in den eigenen Account
 * Angepasste  `docker-compose.yml` im eigenen Repository committen
 * Screenshots ebenfalls im Repository committen, ggf. mit einer eigenen Dokumentation im Markdown-Format ergänzen
-* Es soll ein Pull-Request von dem eigenen Fork zu dem Ursprünglichen Repository erstellt werden
+* Es soll ein Pull-Request von dem eigenen Fork zu dem Ursprünglichen Repository erstellt werden![d857482c-70ae-465e-a7d5-e4b0027985c1](https://user-images.githubusercontent.com/102225659/208913529-c06baca9-47d9-4d2a-b47d-99df4ea0a089.jpg)
+![b0458dd9-dca9-45da-a005-bea21bf4ef2c](https://user-images.githubusercontent.com/102225659/208913561-c82bbf54-fef7-4dce-9471-47bb2b39956b.jpg)
