@@ -3,10 +3,12 @@ version: '3.2'
 volumes:
   prometheus_data: {}
   grafana_data: {}
-  mysql_exporter_data: {}
+  cadvisor_data: {}
+
 
 networks:
   monitor:
+    driver: bridge
 
 services:
   prometheus:
@@ -24,6 +26,7 @@ services:
     depends_on:
       - node-exporter
 
+
   node-exporter:
     image: prom/node-exporter:v1.4.0
     ports:
@@ -31,14 +34,14 @@ services:
     networks:
       - monitor
     volumes:
-      - /proc:/host/proc
-      - /sys:/host/sys
-      - /:/rootfs
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
     command:
-      - "--path.procfs=/host/proc"
-      - "--path.sysfs=/host/sys"
-      - "--collector.textfile.directory=/etc/node-exporter/"
-      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.filesystem.ignored-fs-types=^(autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|sysfs|tracefs)$$'
 
   grafana:
     image: grafana/grafana
@@ -51,18 +54,10 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
 
-
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
-    ports:
-    - 8080:8080
-    networks:
-      - monitor
-
-
-  mysql:
+  db:
     image: mysql:5.7
     ports:
       - 3306:3306
@@ -70,8 +65,10 @@ services:
       - monitor
     environment:
       - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=demodb
-
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=wordpress
+  
   mysql-exporter:
     image: prom/mysqld-exporter
     ports:
@@ -79,18 +76,29 @@ services:
     networks:
       - monitor
     environment:
-      - DATA_SOURCE_NAME=root:root@(mysql:3306)/demodb
+      - DATA_SOURCE_NAME=root:root@(db:3306)/wordpress
     depends_on:
-      - mysql
-    volumes:
-      - mysql_exporter_data:/etc/node-exporter/
+      - db
 
-  nodejs:
-    image: christianheimke/demo-backend-nodejs:001
-    container_name: nodejs
-    environment:
-    - PORT=5000
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
     ports:
-    - 5000:5000
+    - 8080:8080
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+    - redis
+    privileged: true
     networks:
       - monitor
+    
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+    - 6379:6379
+   
