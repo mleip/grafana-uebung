@@ -4,6 +4,11 @@
 
 ## Setup
 
+Ich habe eine komplett neue Linux-VM erstellt
+dadrauf docker installiert mit sudo snap install docker
+dann das repo geclont mit git clone und dem entsprächenden link 
+dann alles gestartet mit sudo docker-compose up
+
 * Bitte Sicherstellen, dass folgende Komponenten auf dem System verfügbar sind:
   *  docker
   *  docker-compose
